@@ -1,0 +1,67 @@
+name: lightweight-app
+namespace: default
+
+image:
+  # This tag will be set by the pipeline when a new version and image is created
+  # Replace blueprint with your APP_NAME (same you have in name)
+  repository: 757467593608.dkr.ecr.eu-central-1.amazonaws.com/test/test_image
+  # Leave tag as it is, with the replace-me. The pipeline will replace it.
+  tag: replace-me
+
+
+
+pod:
+  ports:
+    containerPort: 8877
+    managementPort: 8878
+
+service:
+  type: ClusterIP
+  port: 8877
+  targetPort: 8877
+  labels:
+  annotations: { }
+
+ingress:
+  enabled: true
+  partnering:
+    enabled: true
+
+monitoring:
+  enabled: true
+  readinessProbe:
+    initialDelaySeconds: 60
+    timeoutSeconds: 1
+    periodSeconds: 30
+    failureThreshold: 6
+    path: /actuator/health/readiness
+    port: 8878
+  livenessProbe:
+    timeoutSeconds: 10
+    periodSeconds: 30
+    failureThreshold: 6
+    path: /actuator/health/liveness
+    port: 8878
+# annotations:
+#   my.annotation/test: value
+#   my.annotation/test2: value2
+
+# Set annotations for pods
+podAnnotations: { }
+
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube.
+resources:
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 2
+  averageUtilization: 70
+
